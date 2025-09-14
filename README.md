@@ -1,135 +1,95 @@
-# Turborepo starter
+DOCREADER.AI - Intelligent Invoice Processing Dashboard
 
-This Turborepo starter is maintained by the Turborepo core team.
+DOCREADER.AI is a modern, full-stack web application designed to streamline invoice processing. Users can upload invoice documents (PDFs, images), leverage AI to extract key information, review and edit the data in a user-friendly interface, and manage their saved records in an interactive table.
 
-## Using this example
+Overview
 
-Run the following command:
+This project uses a modern tech stack including Next.js, Tailwind CSS, and Shadcn UI to provide a smooth, responsive, and intuitive user experience.
 
-```sh
-npx create-turbo@latest
-```
+Features
 
-## What's inside?
+📄 Document Upload: Smooth interface for uploading PDFs and images.
 
-This Turborepo includes the following packages/apps:
+👁️ Interactive Document Viewer: Embedded viewer to preview the uploaded document.
 
-### Apps and Packages
+✨ AI-Powered Data Extraction: One-click extraction using AI providers like Gemini or Groq.
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+✍️ Editable Data Form: View and edit extracted data including vendor info, invoice details, and line items.
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+➕ Dynamic Line Items: Add or remove line items with automatic total recalculation.
 
-### Utilities
+↔️ Resizable Split Layout: Adjustable panels between document viewer and data form.
 
-This Turborepo has some additional tools already setup for you:
+📊 Interactive Data Table: Manage all saved invoices with sorting, filtering, and pagination.
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+📥 PDF Download: Generate and download clean PDFs of verified invoice data.
 
-### Build
+Tech Stack
 
-To build all apps and packages, run the following command:
+Framework: Next.js (React)
 
-```
-cd my-turborepo
+Styling: Tailwind CSS
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
+Component Library: Shadcn UI
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
+Resizable Layout: React Resizable Panels
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+Data Table: TanStack Table
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+PDF Generation: jsPDF & jsPDF-AutoTable
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+Icons: Lucide React
 
-### Develop
+Language: TypeScript
 
-To develop all apps and packages, run the following command:
+Getting Started
+Prerequisites
 
-```
-cd my-turborepo
+Node.js (v18.0 or higher)
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
+pnpm (or your preferred package manager)
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
+Installation
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+Clone the repository:
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
+git clone https://github.com/your-username/docreader-ai.git
+cd docreader-ai
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
 
-### Remote Caching
+Install frontend dependencies:
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+pnpm install
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+Set up the backend server for file extraction and database interactions. Make sure it’s running (e.g., at http://localhost:3001).
 
-```
-cd my-turborepo
+Start the development server:
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
+pnpm run dev
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+Open http://localhost:3000
+ in your browser.
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+Available Scripts
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
+pnpm dev – Start the app in development mode
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
+pnpm build – Build the app for production
 
-## Useful Links
+pnpm start – Start a production server
 
-Learn more about the power of Turborepo:
+pnpm lint – Lint the code
 
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+Deployment
+
+Deploy easily using Vercel:
+
+Push your code to a Git repository (GitHub, GitLab, etc.).
+
+Import the repository into Vercel.
+
+Set your backend API URL as an environment variable (e.g., NEXT_PUBLIC_API_URL).
+
+Click Deploy.

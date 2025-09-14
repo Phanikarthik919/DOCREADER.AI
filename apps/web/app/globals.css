@@ -1,50 +1,114 @@
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+    --background: 0 0% 100%;         /* White */
+    --foreground: 222 47% 11%;       /* Dark Gray Text */
+    
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    
+    --primary: 204 94% 60%;          /* Sky Blue */
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 210 40% 96%;        /* Light Gray */
+    --secondary-foreground: 222 47% 11%;
+    
+    --muted: 217 33% 90%;            
+    --muted-foreground: 215 25% 27%;
+    
+    --accent: 173 80% 40%;           /* Teal */
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 84% 60%;        /* Red */
+    --destructive-foreground: 0 0% 100%;
 
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 204 94% 60%;             /* Match primary sky blue */
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-}
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.imgDark {
-  display: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+    --radius: 0.75rem;               /* Softer rounded edges */
   }
 
-  .imgLight {
-    display: none;
+  /* Typography */
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: 'Poppins', 'Inter', sans-serif;
+    line-height: 1.7;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    letter-spacing: 0.2px;
+    padding: 1rem;
   }
-  .imgDark {
-    display: unset;
+
+  h1, h2, h3, h4 {
+    font-weight: 600;
+    color: hsl(var(--foreground));
+    letter-spacing: -0.5px;
+  }
+
+  h1 { font-size: 2rem; margin-bottom: 1rem; }
+  h2 { font-size: 1.5rem; margin-bottom: 0.75rem; }
+  h3 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+
+  p {
+    color: hsl(var(--muted-foreground));
+    margin-bottom: 1rem;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 1.25rem;
+    border-radius: var(--radius);
+    font-weight: 500;
+    transition: all 0.25s ease;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, hsl(204 94% 60%), hsl(221 83% 53%)); /* Sky blue → Blue */
+    color: hsl(var(--primary-foreground));
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+  }
+  .btn-primary:hover {
+    background: linear-gradient(135deg, hsl(204 94% 55%), hsl(221 83% 48%));
+  }
+
+  .btn-secondary {
+    background: hsl(var(--secondary));
+    color: hsl(var(--secondary-foreground));
+    border: 1px solid hsl(var(--border));
+  }
+  .btn-secondary:hover {
+    background: hsl(var(--muted));
+  }
+
+  .btn-accent {
+    background: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+  }
+  .btn-accent:hover {
+    filter: brightness(1.05);
+  }
+
+  /* Card style */
+  .card {
+    background: hsl(var(--card));
+    border-radius: var(--radius);
+    border: 1px solid hsl(var(--border));
+    padding: 1.5rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  }
+
+  /* Layout helpers */
+  .section {
+    margin-bottom: 2rem;
   }
 }
