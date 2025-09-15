@@ -8,25 +8,28 @@ import pdf from 'pdf-parse';
 
 dotenv.config();
 
+// --- Server Setup ---
 if (!process.env.GEMINI_API_KEY) {
   console.error("\nFATAL ERROR: GEMINI_API_KEY is not defined.\n");
   process.exit(1);
 }
 if (!process.env.MONGODB_URI) {
-    console.error("\nFATAL ERROR: MONGODB_URI is not defined.\n");
-    process.exit(1);
+  console.error("\nFATAL ERROR: MONGODB_URI is not defined.\n");
+  process.exit(1);
 }
 
 const app = express();
 const port = 3001;
+
+// Middleware
+app.use(cors({
+  origin: "http://localhost:3000",
+  methods: ["GET", "POST", "DELETE"],
+  credentials: true
+}));
 app.use(express.json());
-app.use(cors());
 
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('Connected to MongoDB Atlas'))
-  .catch(err => console.error('Could not connect to MongoDB Atlas', err));
-
-// --- NEW, COMPREHENSIVE DATABASE SCHEMA ---
+// --- DATABASE SCHEMA ---
 const lineItemSchema = new mongoose.Schema({
   description: String,
   unitPrice: Number,
@@ -36,11 +39,7 @@ const lineItemSchema = new mongoose.Schema({
 
 const invoiceSchema = new mongoose.Schema({
   fileName: { type: String, required: true },
-  vendor: {
-    name: String,
-    address: String,
-    taxId: String,
-  },
+  vendor: { name: String, address: String, taxId: String },
   invoice: {
     number: String,
     date: String,
@@ -49,7 +48,7 @@ const invoiceSchema = new mongoose.Schema({
     taxPercent: Number,
     total: Number,
     poNumber: String,
-    poDate: String,
+    poDate: String
   },
   lineItems: [lineItemSchema],
   createdAt: { type: Date, default: Date.now },
@@ -58,64 +57,65 @@ const invoiceSchema = new mongoose.Schema({
 const Invoice = mongoose.model('Invoice', invoiceSchema);
 const upload = multer({ storage: multer.memoryStorage() });
 
-// --- THE NEW, POWERFUL /extract ENDPOINT ---
+// --- AI EXTRACTION ---
 app.post('/extract', upload.single('file'), async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file was uploaded.' });
-  }
+  if (!req.file) return res.status(400).json({ error: 'No file was uploaded.' });
 
   try {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `
-      Analyze the following document (which could be an image or text from a PDF) and extract all relevant invoice information.
-      Return the answer ONLY as a valid JSON object. Do not include any other text or markdown.
-      The JSON object must have this exact structure:
+      Analyze the document and extract all invoice information.
+      Return ONLY a valid JSON object with this exact structure:
       {
         "vendor": { "name": "string", "address": "string", "taxId": "string" },
         "invoice": { "number": "string", "date": "string", "currency": "string", "subtotal": number, "taxPercent": number, "total": number, "poNumber": "string", "poDate": "string" },
         "lineItems": [{ "description": "string", "unitPrice": number, "quantity": number, "total": number }]
       }
-      If any value is not found, use an empty string "" for strings and 0 for numbers.
+      If a value isn't found, use "" for strings and 0 for numbers.
     `;
 
     let result;
-    // Check if the file is an image or a PDF
     if (req.file.mimetype.startsWith('image/')) {
-      // It's an image, use multimodal extraction
       const imagePart = {
         inlineData: {
           data: req.file.buffer.toString("base64"),
-          mimeType: req.file.mimetype,
-        },
+          mimeType: req.file.mimetype
+        }
       };
       result = await model.generateContent([prompt, imagePart]);
-
     } else if (req.file.mimetype === 'application/pdf') {
-      // It's a PDF, parse text first
       const data = await pdf(req.file.buffer);
-      if (!data.text) {
-        return res.status(400).json({ error: 'Could not read text from the PDF.' });
-      }
-      result = await model.generateContent(prompt + "\n\nDocument Text:\n---\n" + data.text);
+      if (!data.text) return res.status(400).json({ error: 'Could not read text from PDF.' });
+      result = await model.generateContent(prompt + "\n\n---TEXT---\n" + data.text);
     } else {
-      return res.status(400).json({ error: 'Unsupported file type. Please upload a PDF or an image.' });
+      return res.status(400).json({ error: 'Unsupported file type.' });
     }
-    
+
     const responseText = result.response.text();
-    const jsonString = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-    const extractedData = JSON.parse(jsonString);
+    console.log("Raw AI Response:", responseText);
+
+    let extractedData;
+    try {
+      const startIndex = responseText.indexOf('{');
+      const endIndex = responseText.lastIndexOf('}') + 1;
+      const jsonString = responseText.substring(startIndex, endIndex);
+      extractedData = JSON.parse(jsonString);
+    } catch (parseError) {
+      console.error("Failed to parse AI response:", responseText);
+      return res.status(500).json({ error: "AI returned an unexpected format. Please try again." });
+    }
 
     res.status(200).json(extractedData);
 
   } catch (error) {
-    console.error('Error during AI extraction process:', error);
-    res.status(500).json({ error: 'An internal server error occurred during extraction.' });
+    console.error('Error during extraction:', error);
+    res.status(500).json({ error: 'An internal server error occurred.' });
   }
 });
 
-// --- FULLY IMPLEMENTED CRUD OPERATIONS ---
+// --- CRUD Operations ---
 app.post('/invoices', async (req, res) => {
   try {
     const newInvoice = new Invoice(req.body);
@@ -136,16 +136,23 @@ app.get('/invoices', async (req, res) => {
 });
 
 app.delete('/invoices/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const deletedInvoice = await Invoice.findByIdAndDelete(id);
-        if (!deletedInvoice) return res.status(404).json({ error: "Invoice not found." });
-        res.status(200).json({ message: "Invoice deleted successfully." });
-    } catch (error) {
-        res.status(500).json({ error: "Failed to delete invoice." });
-    }
+  try {
+    const { id } = req.params;
+    const deletedInvoice = await Invoice.findByIdAndDelete(id);
+    if (!deletedInvoice) return res.status(404).json({ error: "Invoice not found." });
+    res.status(200).json({ message: "Invoice deleted successfully." });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete invoice." });
+  }
 });
 
-app.listen(port, () => {
-  console.log(`API listening on port ${port}`);
-});
+// --- Connect to MongoDB & Start Server ---
+mongoose.connect(process.env.MONGODB_URI!)
+  .then(() => {
+    console.log("✅ Connected to MongoDB");
+    app.listen(port, () => console.log(`🚀 API listening on port ${port}`));
+  })
+  .catch(err => {
+    console.error("❌ Failed to connect to MongoDB", err);
+    process.exit(1);
+  });
