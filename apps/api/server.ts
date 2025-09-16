@@ -21,15 +21,28 @@ if (!process.env.MONGODB_URI) {
 const app = express();
 const port = 3001;
 
+// --- Connect to MongoDB & Start Server ---
+// MOVED THIS BLOCK TO THE TOP: Ensures DB is connected before listening.
+mongoose.connect(process.env.MONGODB_URI!)
+  .then(() => {
+    console.log("✅ Connected to MongoDB");
+    app.listen(port, () => console.log(`🚀 API listening on port ${port}`));
+  })
+  .catch(err => {
+    console.error("❌ Failed to connect to MongoDB", err);
+    process.exit(1);
+  });
+
+
 // Middleware
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: "http://localhost:3000", // This is good for local development
   methods: ["GET", "POST", "DELETE"],
   credentials: true
 }));
 app.use(express.json());
 
-// --- DATABASE SCHEMA ---
+// --- DATABASE SCHEMA --- (Your correct schema)
 const lineItemSchema = new mongoose.Schema({
   description: String,
   unitPrice: Number,
@@ -57,7 +70,7 @@ const invoiceSchema = new mongoose.Schema({
 const Invoice = mongoose.model('Invoice', invoiceSchema);
 const upload = multer({ storage: multer.memoryStorage() });
 
-// --- AI EXTRACTION ---
+// --- AI EXTRACTION --- (Your correct extraction logic)
 app.post('/extract', upload.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file was uploaded.' });
 
@@ -115,7 +128,7 @@ app.post('/extract', upload.single('file'), async (req, res) => {
   }
 });
 
-// --- CRUD Operations ---
+// --- CRUD Operations --- (Your correct CRUD logic)
 app.post('/invoices', async (req, res) => {
   try {
     const newInvoice = new Invoice(req.body);
@@ -145,14 +158,3 @@ app.delete('/invoices/:id', async (req, res) => {
     res.status(500).json({ error: "Failed to delete invoice." });
   }
 });
-
-// --- Connect to MongoDB & Start Server ---
-mongoose.connect(process.env.MONGODB_URI!)
-  .then(() => {
-    console.log("✅ Connected to MongoDB");
-    app.listen(port, () => console.log(`🚀 API listening on port ${port}`));
-  })
-  .catch(err => {
-    console.error("❌ Failed to connect to MongoDB", err);
-    process.exit(1);
-  });
