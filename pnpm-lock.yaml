@@ -31,38 +31,38 @@ importers:
   apps/api:
     dependencies:
       '@google/generative-ai':
-        specifier: latest
+        specifier: ^0.24.1
         version: 0.24.1
       cors:
         specifier: ^2.8.5
         version: 2.8.5
       dotenv:
-        specifier: ^16.3.1
+        specifier: ^16.6.1
         version: 16.6.1
       express:
-        specifier: ^4.18.2
+        specifier: ^4.21.2
         version: 4.21.2
       mongoose:
-        specifier: ^7.6.1
+        specifier: ^7.8.7
         version: 7.8.7
       multer:
-        specifier: latest
+        specifier: ^2.0.2
         version: 2.0.2
       pdf-parse:
-        specifier: latest
+        specifier: ^1.1.1
         version: 1.1.1
     devDependencies:
       '@types/cors':
-        specifier: latest
+        specifier: ^2.8.19
         version: 2.8.19
       '@types/express':
-        specifier: latest
+        specifier: ^5.0.3
         version: 5.0.3
       '@types/multer':
-        specifier: latest
+        specifier: ^2.0.0
         version: 2.0.0
       '@types/node':
-        specifier: latest
+        specifier: ^24.5.0
         version: 24.5.0
       '@types/pdf-parse':
         specifier: latest
