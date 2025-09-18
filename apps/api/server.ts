@@ -19,30 +19,19 @@ if (!process.env.MONGODB_URI) {
 }
 
 const app = express();
-const port = 3001;
-
-// --- Connect to MongoDB & Start Server ---
-// MOVED THIS BLOCK TO THE TOP: Ensures DB is connected before listening.
-mongoose.connect(process.env.MONGODB_URI!)
-  .then(() => {
-    console.log("✅ Connected to MongoDB");
-    app.listen(port, () => console.log(`🚀 API listening on port ${port}`));
-  })
-  .catch(err => {
-    console.error("❌ Failed to connect to MongoDB", err);
-    process.exit(1);
-  });
-
+const port = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors({
-  origin: "http://localhost:3000", // This is good for local development
+  origin: process.env.NODE_ENV === 'production' 
+    ? ["https://your-frontend-domain.vercel.app"] 
+    : ["http://localhost:3000"],
   methods: ["GET", "POST", "DELETE"],
   credentials: true
 }));
 app.use(express.json());
 
-// --- DATABASE SCHEMA --- (Your correct schema)
+// --- Database Schema ---
 const lineItemSchema = new mongoose.Schema({
   description: String,
   unitPrice: Number,
@@ -52,7 +41,11 @@ const lineItemSchema = new mongoose.Schema({
 
 const invoiceSchema = new mongoose.Schema({
   fileName: { type: String, required: true },
-  vendor: { name: String, address: String, taxId: String },
+  vendor: { 
+    name: String, 
+    address: String, 
+    taxId: String 
+  },
   invoice: {
     number: String,
     date: String,
@@ -70,7 +63,7 @@ const invoiceSchema = new mongoose.Schema({
 const Invoice = mongoose.model('Invoice', invoiceSchema);
 const upload = multer({ storage: multer.memoryStorage() });
 
-// --- AI EXTRACTION --- (Your correct extraction logic)
+// --- AI EXTRACTION ---
 app.post('/extract', upload.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file was uploaded.' });
 
@@ -128,7 +121,7 @@ app.post('/extract', upload.single('file'), async (req, res) => {
   }
 });
 
-// --- CRUD Operations --- (Your correct CRUD logic)
+// --- CRUD Operations ---
 app.post('/invoices', async (req, res) => {
   try {
     const newInvoice = new Invoice(req.body);
@@ -158,3 +151,19 @@ app.delete('/invoices/:id', async (req, res) => {
     res.status(500).json({ error: "Failed to delete invoice." });
   }
 });
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// Connect to MongoDB & Start Server
+mongoose.connect(process.env.MONGODB_URI!)
+  .then(() => {
+    console.log("✅ Connected to MongoDB");
+    app.listen(port, () => console.log(`🚀 API listening on port ${port}`));
+  })
+  .catch(err => {
+    console.error("❌ Failed to connect to MongoDB", err);
+    process.exit(1);
+  });
