@@ -464,7 +464,6 @@ export default function Home() {
                   </tr>
                 </thead>
                 <tbody>
-                  {/* --- THIS IS THE SECOND FIX: A safety check before mapping --- */}
                   {Array.isArray(savedInvoices) && savedInvoices.map(inv => (
                     <tr key={inv._id}>
                       <td className="border p-2">{inv.fileName}</td>
