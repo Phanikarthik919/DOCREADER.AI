@@ -80,27 +80,27 @@ export default function Home() {
 
   useEffect(() => { fetchInvoices(); }, []);
 
-  // --- THIS IS THE FIRST FIX: A more robust fetch function ---
   const fetchInvoices = async () => {
     try {
-      const response = await fetch('http://localhost:3001/invoices');
+      const apiUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://your-api-domain.vercel.app/invoices'
+        : 'http://localhost:3001/invoices';
+      const response = await fetch(apiUrl);
       if (!response.ok) {
-        // If the server sends an error, don't try to parse it as invoices
         console.error("Failed to fetch invoices:", response.statusText);
-        setSavedInvoices([]); // Set to an empty array to prevent crashing
+        setSavedInvoices([]);
         return;
       }
       const data = await response.json();
-      // Ensure the data is an array before setting it
       if (Array.isArray(data)) {
         setSavedInvoices(data);
       } else {
         console.error("Received unexpected data format from API:", data);
-        setSavedInvoices([]); // Set to an empty array on bad data
+        setSavedInvoices([]);
       }
     } catch (error) { 
       console.error("Failed to fetch invoices:", error); 
-      setSavedInvoices([]); // Set to an empty array on network error
+      setSavedInvoices([]);
     }
   };
 
@@ -121,7 +121,10 @@ export default function Home() {
     formData.append('file', uploadedFile);
     formData.append('provider', aiProvider);
     try {
-      const response = await fetch('http://localhost:3001/extract', {
+      const apiUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://your-api-domain.vercel.app/extract'
+        : 'http://localhost:3001/extract';
+      const response = await fetch(apiUrl, {
         method: 'POST', body: formData
       });
       const data = await response.json();
