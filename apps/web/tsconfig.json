@@ -1,5 +1,7 @@
 {
+  "extends": "../../packages/tsconfig/nextjs.json",
   "compilerOptions": {
+<<<<<<< HEAD
     "lib": [
       "dom",
       "dom.iterable",
@@ -27,8 +29,24 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
+=======
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    },
+    "noEmit": true
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+>>>>>>> 82e886c (Initial commit)
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "../api"
   ]
 }
