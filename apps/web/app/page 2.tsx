@@ -80,12 +80,28 @@ export default function Home() {
 
   useEffect(() => { fetchInvoices(); }, []);
 
+  // --- THIS IS THE FIRST FIX: A more robust fetch function ---
   const fetchInvoices = async () => {
     try {
       const response = await fetch('http://localhost:3001/invoices');
+      if (!response.ok) {
+        // If the server sends an error, don't try to parse it as invoices
+        console.error("Failed to fetch invoices:", response.statusText);
+        setSavedInvoices([]); // Set to an empty array to prevent crashing
+        return;
+      }
       const data = await response.json();
-      setSavedInvoices(data);
-    } catch (error) { console.error("Failed to fetch invoices:", error); }
+      // Ensure the data is an array before setting it
+      if (Array.isArray(data)) {
+        setSavedInvoices(data);
+      } else {
+        console.error("Received unexpected data format from API:", data);
+        setSavedInvoices([]); // Set to an empty array on bad data
+      }
+    } catch (error) { 
+      console.error("Failed to fetch invoices:", error); 
+      setSavedInvoices([]); // Set to an empty array on network error
+    }
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,7 +126,6 @@ export default function Home() {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Extraction failed');
-      // Ensure lineItems exist and add a unique ID to each for React keys
       const lineItemsWithId = (data.lineItems || []).map((item: any) => ({...item, id: crypto.randomUUID()}));
       setInvoiceData({ ...data, fileName: uploadedFile.name, lineItems: lineItemsWithId });
       toast.success("Data extracted successfully!");
@@ -446,10 +461,10 @@ export default function Home() {
                   </tr>
                 </thead>
                 <tbody>
-                  {savedInvoices.map(inv => (
+                  {/* --- THIS IS THE SECOND FIX: A safety check before mapping --- */}
+                  {Array.isArray(savedInvoices) && savedInvoices.map(inv => (
                     <tr key={inv._id}>
                       <td className="border p-2">{inv.fileName}</td>
-                      {/* --- THIS IS THE ONLY FIX: Safely access potentially missing data --- */}
                       <td className="border p-2">{inv.vendor?.name || 'N/A'}</td> 
                       <td className="border p-2">{inv.invoice?.number || 'N/A'}</td>
                       <td className="border p-2">{inv.invoice?.currency || '$'}{inv.invoice?.total || 0}</td>
