@@ -223,7 +223,7 @@ export default function Home() {
               <div className="w-full h-full flex flex-col rounded-2xl border overflow-hidden">
                 <div className="p-4 border-b flex justify-between items-center">
                   <h3 className="text-lg font-semibold flex items-center gap-2"><ScanSearch className="w-5 h-5"/> Document Viewer</h3>
-                  <button onClick={()=>fileInputRef.current?.click()} className="px-3 py-1 bg-gray-200 rounded text-dark">Upload</button>
+                  <button onClick={()=>fileInputRef.current?.click()} className="px-3 py-1 bg-gray-200 rounded">Upload</button>
                 </div>
                 <div className="flex-1 p-4">
                   {pdfUrl ? <iframe src={pdfUrl} title="PDF Preview" className="w-full h-full border-0 rounded-2xl"/> :
