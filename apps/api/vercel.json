@@ -11,25 +11,21 @@
   "builds": [
     {
       "src": "apps/web/package.json",
-      "use": "@vercel/next",
-      "config": {
-        "outputDirectory": ".next"
-      }
+      "use": "@vercel/next"
     },
     {
-      "src": "apps/api/package.json",
+      "src": "apps/api/server.ts",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/apps/api/$1"
+      "dest": "apps/api/server.ts"
     },
     {
       "src": "/(.*)",
-      "dest": "/apps/web/$1"
+      "dest": "apps/web/$1"
     }
   ]
 }
-
