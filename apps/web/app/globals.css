@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* "Synthwave Sunset" Color Palette - Enhanced for Readability */
+    --background-start-rgb: 10, 5, 20;
+    --background-end-rgb: 26, 15, 51;
+    
+    --foreground-rgb: 240, 240, 240;
+    --foreground-dark-rgb: 200, 200, 200;
+    
+    --panel-background-rgb: 38, 25, 66;
+    --panel-border-rgb: 76, 29, 149;
+    
+    --primary-rgb: 253, 24, 150;
+    --secondary-rgb: 255, 163, 0;
+    --accent-rgb: 0, 255, 255;
+    --destructive-rgb: 255, 0, 85;
+    
+    --text-muted-rgb: 167, 139, 250;
+    
+    --text-dark-rgb: 30, 30, 30; /* A very dark gray for contrast */
+  }
+
+  body {
+    color: rgb(var(--foreground-rgb));
+    background: linear-gradient(135deg, #1a102b, #3a185c 70%, #2c1a3a 100%);
+    background: linear-gradient(135deg, #697291, #4b47c0);
+    font-family: 'Roboto Mono', monospace;
+  }
+  
+  /* NEW: Reusable class for dark text on a light background */
+  .text-dark {
+    color: rgb(var(--text-dark-rgb));
+  }
+}
