@@ -1,26 +1,15 @@
 {
   "$schema": "https://turborepo.com/schema.json",
-  "tasks": {
+  "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": ["dist/**", ".next/**"]
+    },
+    "dev": {
+      "cache": false
     },
     "lint": {
       "dependsOn": ["^lint"]
-    },
-    "check-types": {
-      "dependsOn": ["^check-types"]
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
     }
-  },
-  "globalDependencies": [
-    "**/.env*"
-  ],
-  "globalEnv": [
-    "GEMINI_API_KEY",
-    "MONGODB_URI"
-  ]
+  }
 }
