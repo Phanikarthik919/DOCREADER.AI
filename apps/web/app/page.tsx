@@ -108,37 +108,31 @@ export default function Home() {
   };
 
   const handleSaveInvoice = async () => {
-  if (!invoiceData) return alert("No invoice to save.");
-  try {
-    // Remove _id from each line item (keep frontend tracking via tempId if needed)
-    const sanitizedInvoiceData = {
-      ...invoiceData,
-      lineItems: invoiceData.lineItems.map(({ id, ...rest }) => rest) // remove id entirely
-    };
+    if (!invoiceData) return alert("No invoice to save.");
+    try {
+      const sanitizedInvoiceData = {
+        ...invoiceData,
+        lineItems: invoiceData.lineItems.map(({ id, ...rest }) => rest)
+      };
+      
+      const response = await fetch(`${apiUrl}/invoices`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sanitizedInvoiceData)
+      });
+      
+      const text = await response.text();
 
-    console.log("Saving invoice to:", `${apiUrl}/invoices`);
-    console.log("Sanitized invoice data:", sanitizedInvoiceData);
+      if (!response.ok) {
+        throw new Error('Failed to save invoice.');
+      }
 
-    const response = await fetch(`${apiUrl}/invoices`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(sanitizedInvoiceData)
-    });
-
-    console.log("Response status:", response.status);
-    const text = await response.text();
-    console.log("Response body:", text);
-
-    if (!response.ok) {
-      throw new Error('Failed to save invoice.');
+      await fetchInvoices();
+      alert("Invoice saved!");
+    } catch (error) {
+      console.error("Error saving invoice:", error);
     }
-
-    await fetchInvoices();
-    alert("Invoice saved!");
-  } catch (error) {
-    console.error("Error saving invoice:", error);
-  }
-};
+  };
 
   const handleDeleteInvoice = async (invoiceId: string) => {
     if (!confirm("Delete this invoice?")) return;
@@ -324,10 +318,12 @@ export default function Home() {
                   <button onClick={handleExtract} disabled={isExtracting || !uploadedFile} className="w-full py-3 bg-purple-600 text-white rounded flex justify-center items-center gap-2">{isExtracting ? <BrainCircuit className="animate-spin h-5 w-5"/> : <Sparkles className="w-5 h-5"/>} Extract with AI</button>
                   <div className="flex gap-4">
                     <button onClick={handleSaveInvoice} disabled={!invoiceData} className="w-full py-2 bg-green-600 text-white rounded flex justify-center items-center gap-1"><Save className="w-4 h-4"/> Save</button>
-                    <button onClick={handleDownloadPdf} disabled={!invoiceData} className="w-full py-2 bg-blue-600 text-white rounded flex justify-center items-center gap-1"><Download className="w-4 h-4"/> Download</button>
-                  </div>
+                    <button onClick={() => handleDownloadPdf()} disabled={!invoiceData} className="w-full py-2 bg-blue-600 text-white rounded flex justify-center items-center gap-1">
+  <Download className="w-4 h-4"/> Download
+</button>
                 </div>
               </div>
+            </div>
             </Panel>
           </PanelGroup>
           <div className="rounded-2xl border overflow-hidden">
@@ -342,7 +338,7 @@ export default function Home() {
                   <th className="p-2 border">Actions</th>
                 </tr>
               </thead>
-              <tbody className="text-white">
+              <tbody className="text-dark">
                 {savedInvoices.map(inv => (
                   <tr key={inv._id} className="border-t">
                     <td className="p-2 border">{inv.vendor ? inv.vendor.name : 'N/A'}</td>
@@ -351,6 +347,7 @@ export default function Home() {
                     <td className="p-2 border">{inv.invoice ? inv.invoice.date : 'N/A'}</td>
                     <td className="p-2 border">
                       <button className="text-red-600" onClick={() => handleDeleteInvoice(inv._id!)}><Trash2 className="w-4 h-4 mx-auto"/></button>
+                      <button className="text-blue-600" onClick={() => handleDownloadPdf(inv)}><Download className="w-4 h-4 mx-auto"/></button>
                     </td>
                   </tr>
                 ))}
