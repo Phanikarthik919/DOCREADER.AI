@@ -7,15 +7,7 @@ import {
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-// apps/web/app/page.tsx
 
-export default function Home() {
-  return (
-    <div>
-      <h1>Welcome to DOCREADER</h1>
-    </div>
-  );
-}
 interface LineItem {
   id: string;
   description: string;
@@ -148,8 +140,6 @@ export default function Home() {
   }
 };
 
- 
-
   const handleDeleteInvoice = async (invoiceId: string) => {
     if (!confirm("Delete this invoice?")) return;
     try {
@@ -159,12 +149,10 @@ export default function Home() {
     } catch (error) { console.error(error); }
   };
   
-  // New function to handle editing a saved invoice
   const handleEditInvoice = (invoice: FullInvoice) => {
     setInvoiceData(invoice);
   };
   
-  // Updated function to handle downloading either the current or a saved invoice
   const handleDownloadPdf = (invoiceToDownload?: FullInvoice) => {
     const invoice = invoiceToDownload || invoiceData;
     if (!invoice) return;
