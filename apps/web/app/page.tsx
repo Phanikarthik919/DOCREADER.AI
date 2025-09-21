@@ -9,11 +9,10 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 // apps/web/app/page.tsx
 
-function HomePage() {
+export default function Home() {
   return (
     <div>
       <h1>Welcome to DOCREADER</h1>
-      {/* ... your other components */}
     </div>
   );
 }
