@@ -1,4 +1,11 @@
-import { nextJsConfig } from "@repo/eslint-config/next-js";
+import baseConfig from "./packages/eslint-config/base.js"; 
 
-/** @type {import("eslint").Linter.Config} */
-export default nextJsConfig;
+export default [
+  ...baseConfig,
+  {
+    files: ["**/*.{js,jsx,ts,tsx}"],
+    rules: {
+      // project-specific overrides
+    },
+  },
+];
