@@ -9,7 +9,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 interface LineItem {
-  id: string; // frontend-only
+  id: string;
   description: string;
   unitPrice: number;
   quantity: number;
@@ -61,6 +61,10 @@ export default function Home() {
 
   useEffect(() => { fetchInvoices(); }, []);
 
+  useEffect(() => {
+    return () => { if(pdfUrl) URL.revokeObjectURL(pdfUrl); }
+  }, [pdfUrl]);
+
   const fetchInvoices = async () => {
     try {
       const response = await fetch(`${apiUrl}/invoices`);
@@ -88,13 +92,13 @@ export default function Home() {
       const response = await fetch(`${apiUrl}/extract`, { method: 'POST', body: formData });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Extraction failed');
-      
-      const extractedLineItems = data.lineItems.map((item: any) => ({
+
+      const extractedLineItems: LineItem[] = data.lineItems.map((item: any) => ({
         ...item,
         id: item.id || crypto.randomUUID(),
         total: Number(item.quantity) * Number(item.unitPrice)
       }));
-      
+
       setInvoiceData({ 
         ...data, 
         fileName: uploadedFile.name,
@@ -111,7 +115,6 @@ export default function Home() {
   const handleSaveInvoice = async () => {
     if (!invoiceData) return alert("No invoice to save.");
     try {
-      // Remove frontend-only `id` and `_id` before saving
       const sanitizedInvoiceData = {
         ...invoiceData,
         lineItems: invoiceData.lineItems.map(({ id, _id, ...rest }) => rest)
@@ -144,9 +147,7 @@ export default function Home() {
     } catch (error) { console.error(error); }
   };
   
-  const handleEditInvoice = (invoice: FullInvoice) => {
-    setInvoiceData(invoice);
-  };
+  const handleEditInvoice = (invoice: FullInvoice) => setInvoiceData(invoice);
   
   const handleDownloadPdf = (invoiceToDownload?: FullInvoice) => {
     const invoice = invoiceToDownload || invoiceData;
@@ -178,11 +179,11 @@ export default function Home() {
     setInvoiceData({ ...invoiceData, [section]: { ...invoiceData[section], [field]: value } });
   };
 
-  const handleLineItemChange = (index: number, field: keyof Omit<LineItem, 'id' | 'total'>, value: string | number) => {
+  const handleLineItemChange = (index: number, field: keyof Omit<LineItem,'id'|'total'>, value: string | number) => {
     if (!invoiceData) return;
-    const updated = [...invoiceData.lineItems];
-    (updated[index] as any)[field] = value;
-    updated[index].total = Number(updated[index].quantity) * Number(updated[index].unitPrice);
+    const updated = invoiceData.lineItems.map((item, i) =>
+      i === index ? { ...item, [field]: value, total: Number(field === 'quantity' ? value : item.quantity) * Number(field === 'unitPrice' ? value : item.unitPrice) } : item
+    );
     setInvoiceData({ ...invoiceData, lineItems: updated });
   };
 
@@ -204,7 +205,7 @@ export default function Home() {
   return (
     <div className="flex h-screen w-full overflow-hidden">
       {/* Sidebar */}
-      <aside className={`w-72 md:flex flex-col p-6 border-r transition-all duration-300 ${isSidebarCollapsed ? 'w-20' : 'w-72'}`}>
+      <aside className={`flex flex-col p-6 border-r transition-all duration-300 ${isSidebarCollapsed ? 'w-20' : 'w-72'}`}>
         <div className="flex items-center gap-3 mb-10 overflow-hidden">
           <DocReaderLogo />
           {!isSidebarCollapsed && <h1 className="text-2xl font-bold">DOCREADER</h1>}
@@ -218,7 +219,7 @@ export default function Home() {
             </div>
           </div>
         )}
-        <div className={`mt-auto transition-all duration-300 ${isSidebarCollapsed ? 'w-full' : ''}`}>
+        <div className="mt-auto">
           <button className={`w-full flex items-center gap-2 p-2 bg-purple-600 text-white rounded justify-center ${isSidebarCollapsed ? '' : 'justify-start'}`}>
             <Gem className="w-4 h-4"/>
             {!isSidebarCollapsed && <span className="pl-1">Upgrade</span>}
@@ -226,7 +227,7 @@ export default function Home() {
         </div>
       </aside>
 
-      {/* Main Content */}
+      {/* Main */}
       <main className="flex-1 flex flex-col overflow-hidden">
         <header className="flex items-center justify-between p-6 border-b sticky top-0 z-10">
           <button onClick={toggleSidebar} className="p-2 rounded hover:bg-gray-100 md:hidden"><AlignJustify className="h-6 w-6"/></button>
@@ -311,10 +312,10 @@ export default function Home() {
                   </div>}
                 </div>
                 <div className="p-6 border-t grid gap-4">
-                  <button onClick={handleExtract} disabled={isExtracting || !uploadedFile} className="w-full py-3 bg-purple-600 text-white rounded flex justify-center items-center gap-2">{isExtracting ? <BrainCircuit className="animate-spin h-5 w-5"/> : <Sparkles className="w-5 h-5"/>} Extract with AI</button>
+                  <button onClick={handleExtract} disabled={isExtracting || !uploadedFile} className="w-full py-3 bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded flex justify-center items-center gap-2">{isExtracting ? <BrainCircuit className="animate-spin h-5 w-5"/> : <Sparkles className="w-5 h-5"/>} Extract with AI</button>
                   <div className="flex gap-4">
-                    <button onClick={handleSaveInvoice} disabled={!invoiceData} className="w-full py-2 bg-green-600 text-white rounded flex justify-center items-center gap-1"><Save className="w-4 h-4"/> Save</button>
-                    <button onClick={() => handleDownloadPdf()} disabled={!invoiceData} className="w-full py-2 bg-blue-600 text-white rounded flex justify-center items-center gap-1"><Download className="w-4 h-4"/> Download</button>
+                    <button onClick={handleSaveInvoice} disabled={!invoiceData} className="w-full py-2 bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded flex justify-center items-center gap-1"><Save className="w-4 h-4"/> Save</button>
+                    <button onClick={() => handleDownloadPdf()} disabled={!invoiceData} className="w-full py-2 bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded flex justify-center items-center gap-1"><Download className="w-4 h-4"/> Download</button>
                   </div>
                 </div>
               </div>
@@ -337,10 +338,10 @@ export default function Home() {
               <tbody>
                 {savedInvoices.map(inv => (
                   <tr key={inv._id} className="border-t">
-                    <td className="p-2 border">{inv.vendor ? inv.vendor.name : 'N/A'}</td>
-                    <td className="p-2 border">{inv.invoice ? inv.invoice.number : 'N/A'}</td>
+                    <td className="p-2 border">{inv.vendor?.name || 'N/A'}</td>
+                    <td className="p-2 border">{inv.invoice?.number || 'N/A'}</td>
                     <td className="p-2 border">{inv.invoice ? `${inv.invoice.total} ${inv.invoice.currency}` : 'N/A'}</td>
-                    <td className="p-2 border">{inv.invoice ? inv.invoice.date : 'N/A'}</td>
+                    <td className="p-2 border">{inv.invoice?.date || 'N/A'}</td>
                     <td className="p-2 border flex justify-center gap-2">
                       <button className="text-red-600" onClick={() => handleDeleteInvoice(inv._id!)}><Trash2 className="w-4 h-4 mx-auto"/></button>
                       <button className="text-blue-600" onClick={() => handleDownloadPdf(inv)}><Download className="w-4 h-4 mx-auto"/></button>
