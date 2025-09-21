@@ -1,13 +1,38 @@
 {
-  "version": 2,
+  "build": {
+    "env": {
+      "PNPM_ENABLE_AUTOINSTALL": "false"
+    }
+  },
+  "projects": [
+    {
+      "rootDirectory": "apps/web",
+      "name": "docreader-ai-web"
+    },
+    {
+      "rootDirectory": "apps/api",
+      "name": "docreader-ai-api"
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/apps/api"
+      "destination": "/api"
     },
     {
       "source": "/(.*)",
       "destination": "/apps/web"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
     }
   ]
 }

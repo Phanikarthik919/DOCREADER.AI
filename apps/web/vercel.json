@@ -1,13 +1,20 @@
 {
-  "version": 2,
-  "rewrites": [
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "builds": [
     {
-      "source": "/api/(.*)",
-      "destination": "/apps/api"
+      "src": "apps/web/next.config.js",
+      "use": "@vercel/next",
+      "config": {
+        "installCommand": "pnpm install",
+        "buildCommand": "next build"
+      }
     },
     {
-      "source": "/(.*)",
-      "destination": "/apps/web"
+      "src": "apps/api/server.ts",
+      "use": "@vercel/node",
+      "config": {
+        "installCommand": "pnpm install"
+      }
     }
   ]
 }
