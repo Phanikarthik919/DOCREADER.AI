@@ -108,14 +108,39 @@ export default function Home() {
   };
 
   const handleSaveInvoice = async () => {
-    if (!invoiceData) return alert("No invoice to save.");
-    try {
-      const response = await fetch(`${apiUrl}/invoices`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(invoiceData) });
-      if (!response.ok) throw new Error('Failed to save invoice.');
-      await fetchInvoices();
-      alert("Invoice saved!");
-    } catch (error) { console.error(error); }
-  };
+  if (!invoiceData) return alert("No invoice to save.");
+  try {
+    // Remove _id from each line item (keep frontend tracking via tempId if needed)
+    const sanitizedInvoiceData = {
+      ...invoiceData,
+      lineItems: invoiceData.lineItems.map(({ id, ...rest }) => rest) // remove id entirely
+    };
+
+    console.log("Saving invoice to:", `${apiUrl}/invoices`);
+    console.log("Sanitized invoice data:", sanitizedInvoiceData);
+
+    const response = await fetch(`${apiUrl}/invoices`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(sanitizedInvoiceData)
+    });
+
+    console.log("Response status:", response.status);
+    const text = await response.text();
+    console.log("Response body:", text);
+
+    if (!response.ok) {
+      throw new Error('Failed to save invoice.');
+    }
+
+    await fetchInvoices();
+    alert("Invoice saved!");
+  } catch (error) {
+    console.error("Error saving invoice:", error);
+  }
+};
+
+ 
 
   const handleDeleteInvoice = async (invoiceId: string) => {
     if (!confirm("Delete this invoice?")) return;
@@ -125,17 +150,25 @@ export default function Home() {
       await fetchInvoices();
     } catch (error) { console.error(error); }
   };
-
-  const handleDownloadPdf = () => {
-    if (!invoiceData) return;
+  
+  // New function to handle editing a saved invoice
+  const handleEditInvoice = (invoice: FullInvoice) => {
+    setInvoiceData(invoice);
+  };
+  
+  // Updated function to handle downloading either the current or a saved invoice
+  const handleDownloadPdf = (invoiceToDownload?: FullInvoice) => {
+    const invoice = invoiceToDownload || invoiceData;
+    if (!invoice) return;
+    
     const doc = new jsPDF();
-    const { vendor, invoice, lineItems } = invoiceData;
-    doc.setProperties({ title: `Invoice ${invoice.number}` });
+    const { vendor, invoice: inv, lineItems } = invoice;
+    doc.setProperties({ title: `Invoice ${inv.number}` });
     doc.setFontSize(22);
     doc.text("INVOICE", 105, 20, { align: "center" });
     doc.setFontSize(11);
     doc.text(`From:\n${vendor.name}\n${vendor.address}`, 14, 40);
-    doc.text(`Invoice #: ${invoice.number}\nDate: ${invoice.date}`, 196, 40, { align: "right" });
+    doc.text(`Invoice #: ${inv.number}\nDate: ${inv.date}`, 196, 40, { align: "right" });
 
     autoTable(doc, {
       head: [["Description", "Qty", "Unit Price", "Total"]],
@@ -145,8 +178,8 @@ export default function Home() {
     });
 
     const finalY = (doc as any).lastAutoTable.finalY;
-    doc.text(`TOTAL: ${invoice.currency}${invoice.total.toFixed(2)}`, 196, finalY + 10, { align: "right" });
-    doc.save(`Invoice-${invoice.number}.pdf`);
+    doc.text(`TOTAL: ${inv.currency}${inv.total.toFixed(2)}`, 196, finalY + 10, { align: "right" });
+    doc.save(`Invoice-${inv.number}.pdf`);
   };
 
   const handleFormChange = (section: 'vendor' | 'invoice', field: string, value: string | number) => {
