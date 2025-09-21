@@ -1,13 +1,31 @@
 {
   "version": 2,
-  "rewrites": [
+  "builds": [
     {
-      "source": "/api/(.*)",
-      "destination": "/apps/api"
+      "src": "apps/web/next.config.js",
+      "use": "@vercel/next",
+      "config": {
+        "installCommand": "pnpm install",
+        "buildCommand": "pnpm run build --filter=web"
+      }
     },
     {
-      "source": "/(.*)",
-      "destination": "/apps/web"
+      "src": "apps/api/server.ts",
+      "use": "@vercel/node",
+      "config": {
+        "installCommand": "pnpm install",
+        "buildCommand": "pnpm run build --filter=api"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/apps/api/server.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/apps/web"
     }
   ]
 }
