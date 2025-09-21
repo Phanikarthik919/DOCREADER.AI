@@ -8,7 +8,6 @@ import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-// --- Types ---
 interface LineItem {
   id: string;
   description: string;
@@ -25,7 +24,6 @@ interface FullInvoice {
   createdAt?: string;
 }
 
-// Logo
 const DocReaderLogo = () => (
   <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect width="40" height="40" rx="20" fill="url(#logo-gradient)"/>
@@ -40,7 +38,6 @@ const DocReaderLogo = () => (
   </svg>
 );
 
-// Empty invoice helper
 const createEmptyInvoice = (fileName: string): FullInvoice => ({
   fileName,
   vendor: { name: '', address: '', taxId: '' },
@@ -59,12 +56,13 @@ export default function Home() {
   const [showBellDropdown, setShowBellDropdown] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
   useEffect(() => { fetchInvoices(); }, []);
 
   const fetchInvoices = async () => {
     try {
-      const response = await fetch('http://localhost:3001/invoices');
+      const response = await fetch(`${apiUrl}/invoices`);
       const data = await response.json();
       setSavedInvoices(data);
     } catch (error) { console.error("Failed to fetch invoices:", error); }
@@ -86,7 +84,7 @@ export default function Home() {
     formData.append('file', uploadedFile);
     formData.append('provider', aiProvider);
     try {
-      const response = await fetch('http://localhost:3001/extract', { method: 'POST', body: formData });
+      const response = await fetch(`${apiUrl}/extract`, { method: 'POST', body: formData });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Extraction failed');
       
@@ -112,7 +110,7 @@ export default function Home() {
   const handleSaveInvoice = async () => {
     if (!invoiceData) return alert("No invoice to save.");
     try {
-      const response = await fetch('http://localhost:3001/invoices', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(invoiceData) });
+      const response = await fetch(`${apiUrl}/invoices`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(invoiceData) });
       if (!response.ok) throw new Error('Failed to save invoice.');
       await fetchInvoices();
       alert("Invoice saved!");
@@ -122,7 +120,7 @@ export default function Home() {
   const handleDeleteInvoice = async (invoiceId: string) => {
     if (!confirm("Delete this invoice?")) return;
     try {
-      const response = await fetch(`http://localhost:3001/invoices/${invoiceId}`, { method: 'DELETE' });
+      const response = await fetch(`${apiUrl}/invoices/${invoiceId}`, { method: 'DELETE' });
       if (!response.ok) throw new Error('Delete failed.');
       await fetchInvoices();
     } catch (error) { console.error(error); }
@@ -181,7 +179,6 @@ export default function Home() {
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
-      {/* Sidebar */}
       <aside className={`w-72 md:flex flex-col p-6 border-r transition-all duration-300 ${isSidebarCollapsed ? 'w-20' : 'w-72'}`}>
         <div className="flex items-center gap-3 mb-10 overflow-hidden">
           <DocReaderLogo />
@@ -204,7 +201,6 @@ export default function Home() {
         </div>
       </aside>
 
-      {/* Main */}
       <main className="flex-1 flex flex-col overflow-hidden">
         <header className="flex items-center justify-between p-6 border-b sticky top-0 z-10">
           <button onClick={toggleSidebar} className="p-2 rounded hover:bg-gray-100 md:hidden"><AlignJustify className="h-6 w-6"/></button>
@@ -223,7 +219,7 @@ export default function Home() {
               <div className="w-full h-full flex flex-col rounded-2xl border overflow-hidden">
                 <div className="p-4 border-b flex justify-between items-center">
                   <h3 className="text-lg font-semibold flex items-center gap-2"><ScanSearch className="w-5 h-5"/> Document Viewer</h3>
-                  <button onClick={()=>fileInputRef.current?.click()} className="px-3 py-1 bg-gray-200 rounded">Upload</button>
+                  <button onClick={()=>fileInputRef.current?.click()} className="px-3 py-1 bg-blue-600 rounded text-white">Upload</button>
                 </div>
                 <div className="flex-1 p-4">
                   {pdfUrl ? <iframe src={pdfUrl} title="PDF Preview" className="w-full h-full border-0 rounded-2xl"/> :
@@ -239,12 +235,10 @@ export default function Home() {
               <div className="w-full h-full flex flex-col rounded-2xl border overflow-hidden">
                 <div className="p-4 border-b"><h3 className="text-lg font-semibold flex items-center gap-2"><FilePenLine className="w-5 h-5"/> Data Extraction</h3></div>
                 <div className="p-6 space-y-4 flex-1 overflow-y-auto">
-                  {/* AI Provider */}
                   <div className="flex gap-4">
                     <label className="text-dark"><input type="radio" checked={aiProvider==='gemini'} onChange={()=>setAiProvider('gemini')}/> Gemini</label>
                     <label className="text-dark"><input type="radio" checked={aiProvider==='groq'} onChange={()=>setAiProvider('groq')}/> Groq</label>
                   </div>
-
                   {!invoiceData ? <div className="text-center pt-10">Upload and extract data to see the form.</div> :
                   <div className="space-y-4">
                     <h4 className="font-semibold pt-4">Vendor</h4>
@@ -253,7 +247,6 @@ export default function Home() {
                       <input className="border p-1 rounded text-dark placeholder-dark" placeholder="Tax ID" value={invoiceData.vendor.taxId} onChange={e=>handleFormChange('vendor','taxId', e.target.value)}/>
                       <input className="border p-1 rounded col-span-2 text-dark placeholder-dark" placeholder="Address" value={invoiceData.vendor.address} onChange={e=>handleFormChange('vendor','address', e.target.value)}/>
                     </div>
-
                     <h4 className="font-semibold pt-4">Invoice</h4>
                     <div className="grid grid-cols-2 gap-2">
                       <input className="border p-1 rounded text-dark placeholder-dark" placeholder="Number" value={invoiceData.invoice.number} onChange={e=>handleFormChange('invoice','number', e.target.value)}/>
@@ -261,8 +254,6 @@ export default function Home() {
                       <input className="border p-1 rounded text-dark placeholder-dark" placeholder="Total" type="number" value={invoiceData.invoice.total} onChange={e=>handleFormChange('invoice','total', parseFloat(e.target.value))}/>
                       <input className="border p-1 rounded text-dark placeholder-dark" placeholder="Currency" value={invoiceData.invoice.currency} onChange={e=>handleFormChange('invoice','currency', e.target.value)}/>
                     </div>
-
-                    {/* Line Items Table */}
                     <h4 className="font-semibold pt-4 flex justify-between items-center">Line Items
                       <button onClick={addLineItem} className="flex items-center gap-1 text-blue-600"><PlusCircle className="w-4 h-4"/> Add</button>
                     </h4>
@@ -300,8 +291,6 @@ export default function Home() {
                     </table>
                   </div>}
                 </div>
-
-                {/* Bottom Buttons */}
                 <div className="p-6 border-t grid gap-4">
                   <button onClick={handleExtract} disabled={isExtracting || !uploadedFile} className="w-full py-3 bg-purple-600 text-white rounded flex justify-center items-center gap-2">{isExtracting ? <BrainCircuit className="animate-spin h-5 w-5"/> : <Sparkles className="w-5 h-5"/>} Extract with AI</button>
                   <div className="flex gap-4">
@@ -312,8 +301,6 @@ export default function Home() {
               </div>
             </Panel>
           </PanelGroup>
-
-          {/* Saved Invoices */}
           <div className="rounded-2xl border overflow-hidden">
             <div className="p-4 border-b flex items-center gap-2 text-dark"><TableIcon className="w-5 h-5"/> Saved Invoices</div>
             <table className="w-full table-auto border-collapse border border-gray-300 text-center text-dark">
@@ -341,7 +328,6 @@ export default function Home() {
               </tbody>
             </table>
           </div>
-
         </div>
       </main>
     </div>
