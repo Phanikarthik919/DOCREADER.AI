@@ -20,7 +20,10 @@ if (!process.env.MONGODB_URI) {
 
 const app = express();
 const port = process.env.PORT || 3001;
-
+// Add this line below your other routes
+app.get('/', (req, res) => {
+  res.send('Hello from the backend API!');
+});
 // Middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 

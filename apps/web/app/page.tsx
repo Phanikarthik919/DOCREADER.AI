@@ -7,7 +7,16 @@ import {
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+// apps/web/app/page.tsx
 
+function HomePage() {
+  return (
+    <div>
+      <h1>Welcome to DOCREADER</h1>
+      {/* ... your other components */}
+    </div>
+  );
+}
 interface LineItem {
   id: string;
   description: string;
