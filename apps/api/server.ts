@@ -24,7 +24,7 @@ const port = process.env.PORT || 3001;
 // Middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ["https://your-frontend-domain.vercel.app"] 
+    ? [process.env.FRONTEND_URL!] 
     : ["http://localhost:3000"],
   methods: ["GET", "POST", "DELETE"],
   credentials: true
