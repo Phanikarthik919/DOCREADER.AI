@@ -32,6 +32,9 @@ importers:
       '@tanstack/react-table':
         specifier: ^8.21.3
         version: 8.21.3(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      button:
+        specifier: link:@/components/ui/button
+        version: link:@/components/ui/button
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.1
@@ -202,6 +205,9 @@ importers:
       '@types/multer':
         specifier: ^2.0.0
         version: 2.0.0
+      button:
+        specifier: link:@/components/ui/button
+        version: link:@/components/ui/button
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.1

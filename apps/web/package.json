@@ -23,6 +23,7 @@
     "@types/dotenv": "^8.2.3",
     "@types/mongoose": "^5.11.97",
     "@types/multer": "^2.0.0",
+    "button": "link:@/components/ui/button",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cors": "^2.8.5",

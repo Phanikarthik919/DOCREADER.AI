@@ -12,14 +12,14 @@ import {
 } from "@tanstack/react-table"
 import { MoreHorizontal, Trash2 } from "lucide-react"
 
-import { Button } from "../components/ui/button"
+import { Button } from "../../components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../components/ui/dropdown-menu"
-import { Input } from "../components/ui/input"
+} from "../../components/ui/dropdown-menu"
+import { Input } from "../../components/ui/input"
 import {
   Table,
   TableBody,
@@ -27,7 +27,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../components/ui/table"
+} from "../../components/ui/table"
 
 // Define the shape of our invoice data for the table
 export type SavedInvoice = {
