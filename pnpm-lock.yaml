@@ -220,6 +220,9 @@ importers:
       dotenv:
         specifier: ^16.6.1
         version: 16.6.1
+      express:
+        specifier: 4.18.2
+        version: 4.18.2
       framer-motion:
         specifier: ^12.23.12
         version: 12.23.18(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -272,6 +275,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4.0.0-alpha.13
         version: 4.1.13
+      '@types/express':
+        specifier: ^5.0.3
+        version: 5.0.3
       '@types/node':
         specifier: ^20
         version: 20.19.17
