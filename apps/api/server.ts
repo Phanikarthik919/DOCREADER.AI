@@ -5,9 +5,7 @@ import cors from 'cors';
 import multer from 'multer';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import pdf from 'pdf-parse';
-app.get('/', (req, res) => {
-  res.send('Hello from the backend API!');
-});
+
 dotenv.config();
 
 // --- Server Setup ---

@@ -1,6 +1,6 @@
 import React from 'react';
+import { Gem } from 'lucide-react'; // Import Gem directly from lucide-react
 import { DocReaderLogo } from './DocReaderLogo';
-import { ICONS } from '../constants';
 
 interface SidebarProps {
   isSidebarCollapsed: boolean;
@@ -24,7 +24,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarCollapsed }) => {
       )}
       <div className={`mt-auto transition-all duration-300 ${isSidebarCollapsed ? 'w-full' : ''}`}>
         <button className={`w-full flex items-center gap-2 p-2 bg-purple-600 text-white rounded ${isSidebarCollapsed ? 'justify-center' : 'justify-start'}`}>
-          <ICONS.Gem className="w-4 h-4" />
+          <Gem className="w-4 h-4" />
           {!isSidebarCollapsed && <span className="pl-1">Upgrade</span>}
         </button>
       </div>

@@ -42,7 +42,10 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 // --- API ROUTES ---
 
-app.post('/extract', upload.single('file'), async (req, res) => {
+import { Request } from 'express';
+import { Multer } from 'multer';
+
+app.post('/extract', upload.single('file'), async (req: Request & { file?: Express.Multer.File }, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file was uploaded.' });
   }

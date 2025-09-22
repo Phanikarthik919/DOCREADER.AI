@@ -117,7 +117,7 @@ export default function Home() {
     try {
       const sanitizedInvoiceData = {
         ...invoiceData,
-        lineItems: invoiceData.lineItems.map(({ id, _id, ...rest }) => rest)
+        lineItems: invoiceData.lineItems.map(({ id, ...rest }) => rest)
       };
 
       const response = await fetch(`${apiUrl}/invoices`, {
