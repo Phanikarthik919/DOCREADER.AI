@@ -56,7 +56,7 @@ export default function Home() {
   const [showBellDropdown, setShowBellDropdown] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://docreader-ai-311x.onrender.com';
 
   useEffect(() => { fetchInvoices(); }, []);
 
